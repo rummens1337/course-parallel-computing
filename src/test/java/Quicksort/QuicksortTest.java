@@ -1,13 +1,12 @@
 package Quicksort;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Arrays;
 import java.util.Random;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * QuicksortTest to check correct implementation of quicksort.
@@ -20,7 +19,7 @@ public class QuicksortTest {
     private final static int SIZE = 7;
     private final static int MAX = 20;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         numbers = new int[SIZE];
         Random generator = new Random();
