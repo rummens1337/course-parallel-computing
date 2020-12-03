@@ -7,14 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * QuicksortTest to check correct implementation of quicksort.
+ * QuicksortParallelTest to check correct implementation of QuicksortParallel.
  *
  * DISCLAIMER
  * This is NOT fully our own work, and is partially copied from
  * https://www.vogella.com/tutorials/JavaAlgorithmsQuicksortParallel/article.html
  * Writing our own Quicksort method is not required per assignment, and is thus copied for sake of ease.
  */
-public class QuicksortTest {
+public class QuicksortParallelTest {
 
     private static int[] numbers;
     private final static int SIZE = 2000000;
@@ -22,26 +22,26 @@ public class QuicksortTest {
 
     @BeforeAll
     static void setUp() {
-        System.out.println("#### Quicksort tests ####");
+        System.out.println("#### QuicksortParallel tests ####");
         GenerateData gd = new GenerateData();
         numbers = gd.randomSeededArray(SIZE, SEED);
     }
 
     @Test
     public void testNull() {
-        Quicksort sorter = new Quicksort();
+        QuicksortParallel sorter = new QuicksortParallel();
         sorter.sort(null);
     }
 
     @Test
     public void testEmpty() {
-        Quicksort sorter = new Quicksort();
+        QuicksortParallel sorter = new QuicksortParallel();
         sorter.sort(new int[0]);
     }
 
     @Test
     public void testSimpleElement() {
-        Quicksort sorter = new Quicksort();
+        QuicksortParallel sorter = new QuicksortParallel();
         int[] test = new int[1];
         test[0] = 5;
         sorter.sort(test);
@@ -49,7 +49,7 @@ public class QuicksortTest {
 
     @Test
     public void testSpecial() {
-        Quicksort sorter = new Quicksort();
+        QuicksortParallel sorter = new QuicksortParallel();
         int[] test = { 5, 5, 6, 6, 4, 4, 5, 5, 4, 4, 6, 6, 5, 5 };
         sorter.sort(test);
         if (!validate(test)) {
@@ -58,15 +58,15 @@ public class QuicksortTest {
     }
 
     @Test
-    public void testQuickSort() {
+    public void testQuicksortParallel() {
         long startTime = System.currentTimeMillis();
 
-        Quicksort sorter = new Quicksort();
+        QuicksortParallel sorter = new QuicksortParallel();
         sorter.sort(numbers);
 
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
-        System.out.println("Quicksort time elapsed: " + elapsedTime + " milliseconds");
+        System.out.println("QuicksortParallel time elapsed: " + elapsedTime + " milliseconds");
 
         if (!validate(numbers)) {
             fail("Array was not correctly sorted.");

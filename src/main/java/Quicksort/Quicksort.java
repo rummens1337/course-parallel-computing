@@ -2,14 +2,17 @@ package Quicksort;
 
 /**
  * Quicksort method te calculate speed of quicksort.
- * This is NOT our work, and is copied from https://www.vogella.com/tutorials/JavaAlgorithmsQuicksort/article.html
- * Writing our own quicksort method is not required per assignment, and is thus copied for sake of ease.
+ *
+ * DISCLAIMER
+ * This is NOT fully our own work, and is partially copied from
+ * https://www.vogella.com/tutorials/JavaAlgorithmsQuicksortParallel/article.html
+ * Writing our own Quicksort method is not required per assignment, and is thus copied for sake of ease.
  */
 public class Quicksort {
-    private int[] numbers;
+    private int [] numbers;
     private int number;
 
-    public void sort(int[] values) {
+    public void sort(int [] values) {
         // check for empty or null array
         if (values ==null || values.length==0){
             return;
@@ -59,5 +62,16 @@ public class Quicksort {
         int temp = numbers[i];
         numbers[i] = numbers[j];
         numbers[j] = temp;
+    }
+
+    public static void main(String[] args) {
+        Quicksort qs = new Quicksort();
+        GenerateData gd = new GenerateData();
+        int [] array = gd.randomSeededArray(2000000,1337);
+
+        System.out.println(array[5] + " " + array[50000-1]);
+        System.out.println(array.length);
+        qs.sort(array);
+        System.out.println(array[5] + " " + array[50000-1]);
     }
 }
