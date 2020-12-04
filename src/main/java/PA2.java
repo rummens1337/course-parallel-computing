@@ -27,17 +27,21 @@ public class PA2 {
         Quicksort qs = new Quicksort();
         int [] data = GenerateData.randomSeededArray(50000000,1337);
 
-//        Instant start2 = Instant.now();
-//        qs.sort(data);
-//        Instant end2 = Instant.now();
-//        Duration timeElapsed2 = Duration.between(start2, end2);
-//        System.out.println("Regular: " + timeElapsed2);
+        Instant start2 = Instant.now();
+        qs.sort(data);
+        Instant end2 = Instant.now();
+        Duration timeElapsed2 = Duration.between(start2, end2);
+        System.out.println("Regular: " + timeElapsed2);
 
-        Instant start = Instant.now();
-        qsp.sort(data);
-        Instant end = Instant.now();
-        Duration timeElapsed = Duration.between(start, end);
-        System.out.println("parallel: " + timeElapsed);
+//        Instant start = Instant.now();
+//        qsp.sort(data);
+//
+//        for (int i: data) {
+//            System.out.println(i);
+//        }
+//        Instant end = Instant.now();
+//        Duration timeElapsed = Duration.between(start, end);
+//        System.out.println("parallel: " + timeElapsed);
 //        6.161098533S
 //        PT6.255197507S
 //        JFreeChart lineChart = ChartFactory.createLineChart(

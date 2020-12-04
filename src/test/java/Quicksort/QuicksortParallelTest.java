@@ -16,14 +16,12 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class QuicksortParallelTest {
 
-    private static int[] numbers;
-    private final static int SIZE = 2000000;
+    private final static int SIZE = 50000;
     private final static int SEED = 1337;
 
     @BeforeAll
     static void setUp() {
         System.out.println("#### QuicksortParallel tests ####");
-        numbers = GenerateData.randomSeededArray(SIZE, SEED);
     }
 
     @Test
@@ -58,14 +56,9 @@ public class QuicksortParallelTest {
 
     @Test
     public void testQuicksortParallel() {
-        long startTime = System.currentTimeMillis();
-
         QuicksortParallel sorter = new QuicksortParallel();
+        int [] numbers = GenerateData.randomSeededArray(SIZE, SEED);
         sorter.sort(numbers);
-
-        long stopTime = System.currentTimeMillis();
-        long elapsedTime = stopTime - startTime;
-        System.out.println("QuicksortParallel time elapsed: " + elapsedTime + " milliseconds");
 
         if (!validate(numbers)) {
             fail("Array was not correctly sorted.");

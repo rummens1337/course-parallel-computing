@@ -13,10 +13,11 @@ public class Quicksort {
     private int number;
 
     public void sort(int [] values) {
-        // check for empty or null array
-        if (values ==null || values.length==0){
+        // check for empty or null array or 1 element array
+        if (values ==null || values.length==0 || values.length==1){
             return;
         }
+
         this.numbers = values;
         number = values.length;
         quicksort(0, number - 1);

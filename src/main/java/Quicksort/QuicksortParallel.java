@@ -82,10 +82,15 @@ public class QuicksortParallel extends Thread {
                 }
             });
 
+            t1.start();
+
             if (low < j)
                 quicksort(low, j);
-
-            t1.start();
+        }else{
+            if (low < j)
+                quicksort(low, j);
+            if (i < high)
+                quicksort(i, high);
         }
     }
 
