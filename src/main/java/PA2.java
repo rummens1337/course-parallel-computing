@@ -1,12 +1,13 @@
 import Quicksort.GenerateData;
 import Quicksort.QuicksortParallel;
-import org.jfree.chart.ChartFactory;
+import Quicksort.Quicksort;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * ASSIGNMENT
@@ -23,21 +24,37 @@ public class PA2 {
     public static void main(String[] args) {
 
         QuicksortParallel qsp = new QuicksortParallel();
-//        Quicksort qs = new Quicksort();
-        int [] data = GenerateData.randomSeededArray(2000000,1337);
+        Quicksort qs = new Quicksort();
+        int [] data = GenerateData.randomSeededArray(20000000,1337);
 
-//        qs.sort(data);
+        Instant start = Instant.now();
         qsp.sort(data);
+        Instant end = Instant.now();
+        Duration timeElapsed = Duration.between(start, end);
+        System.out.println("parallel: " + timeElapsed);
 
-        JFreeChart lineChart = ChartFactory.createLineChart(
-                "title",
-                "Years", "Number of Schools",
-                createDataset(),
-                PlotOrientation.VERTICAL,
-                true, true, false);
-
-        exportChartToPng("chart1.png", lineChart, 800, 800);
+        Instant start2 = Instant.now();
+        qs.sort(data);
+        Instant end2 = Instant.now();
+        Duration timeElapsed2 = Duration.between(start2, end2);
+        System.out.println("Regular: " + timeElapsed2);
+//        JFreeChart lineChart = ChartFactory.createLineChart(
+//                "title",
+//                "Years", "Number of Schools",
+//                createDataset(),
+//                PlotOrientation.VERTICAL,
+//                true, true, false);
+//
+//        exportChartToPng("chart1.png", lineChart, 800, 800);
     }
+
+//    public static void calculateTime(Callable<PA2> func) throws Exception {
+//        Instant start = Instant.now();
+//        func.call();
+//        Instant end = Instant.now();
+//        Duration timeElapsed = Duration.between(start, end);
+//        return func.call();
+//    }
 
     public static void exportChartToPng(String filename, JFreeChart chart, int width, int height) {
         try {

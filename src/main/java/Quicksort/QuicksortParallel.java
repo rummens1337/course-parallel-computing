@@ -1,5 +1,7 @@
 package Quicksort;
 
+import java.util.concurrent.Semaphore;
+
 /**
  * Quicksort method te calculate speed of quicksort.
  *
@@ -11,10 +13,9 @@ package Quicksort;
 public class QuicksortParallel extends Thread {
 
     final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
-    private int numberOfThreads = 1;
+    private Semaphore sem;
     private int [] numbers;
     private int number;
-    private int i,j;
 
     public void sort(int [] values) {
         // check for empty or null array
@@ -23,12 +24,18 @@ public class QuicksortParallel extends Thread {
         }
         this.numbers = values;
         number = values.length;
-        quicksort(0, number - 1);
+        sem = new Semaphore(MAX_THREADS);
+
+        try {
+            quicksort(0, number - 1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void quicksort(int low, int high) {
-        i = low;
-        j = high;
+    private void quicksort(int low, int high) throws InterruptedException {
+        int i = low;
+        int j = high;
         // Get the pivot element from the middle of the list
         int pivot = numbers[low + (high-low)/2];
 
@@ -58,25 +65,35 @@ public class QuicksortParallel extends Thread {
         }
 
         // If max threads not used, start thread for sorting
-        if (numberOfThreads < MAX_THREADS) {
+        if (sem.tryAcquire()) {
+            System.out.println("here");
+            int k = i;
+            System.out.println("MAX_THREADS:" + MAX_THREADS);
+            System.out.println("Acquire a semaphore from the pool");
+            sem.acquire();
+            new Thread(new QuicksortParallel()).start();
+            Thread t1 = new Thread(() -> {
+                try {
+                    // run quicksort here
+                    if (k < high) {
+                        System.out.println("test:" + k);
+                        quicksort(k, high);
+
+                        System.out.println("Releasing the semaphore");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            t1.start();
+            t1.join();
 
             if (low < j)
                 quicksort(low, j);
 
-            new Thread(new QuicksortParallel()).start();
-            Thread t1 = new Thread(() -> {
-                // run quicksort here
-                if (i < high)
-                    quicksort(i, high);
-                numberOfThreads--;
-            });
-
-            numberOfThreads++;
-
-            t1.start();
-
         } else {
-            // If max threads is used, start doing normal quicksort
+            // If max threads is used, start doing quicksort on current thread only
             // Recursion
             if (low < j)
                 quicksort(low, j);
