@@ -64,14 +64,4 @@ public class Quicksort {
         numbers[j] = temp;
 
     }
-
-    public static void main(String[] args) {
-        Quicksort qs = new Quicksort();
-        int [] array = GenerateData.randomSeededArray(2000000,1337);
-
-        System.out.println(array[5] + " " + array[50000-1]);
-        System.out.println(array.length);
-        qs.sort(array);
-        System.out.println(array[5] + " " + array[50000-1]);
-    }
 }

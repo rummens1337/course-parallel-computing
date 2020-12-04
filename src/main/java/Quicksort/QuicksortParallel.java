@@ -63,8 +63,6 @@ public class QuicksortParallel extends Thread {
             if (low < j)
                 quicksort(low, j);
 
-            System.out.println("test");
-
             new Thread(new QuicksortParallel()).start();
             Thread t1 = new Thread(() -> {
                 // run quicksort here
@@ -91,15 +89,5 @@ public class QuicksortParallel extends Thread {
         int temp = numbers[i];
         numbers[i] = numbers[j];
         numbers[j] = temp;
-    }
-
-    public static void main(String[] args) {
-        QuicksortParallel qs = new QuicksortParallel();
-        int [] array = GenerateData.randomSeededArray(2000000,1337);
-
-        System.out.println(array[5] + " " + array[50000-1]);
-        System.out.println(array.length);
-        qs.sort(array);
-        System.out.println(array[5] + " " + array[50000-1]);
     }
 }

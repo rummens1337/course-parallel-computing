@@ -1,3 +1,5 @@
+import Quicksort.GenerateData;
+import Quicksort.QuicksortParallel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -19,6 +21,14 @@ import java.io.File;
  */
 public class PA2 {
     public static void main(String[] args) {
+
+        QuicksortParallel qsp = new QuicksortParallel();
+//        Quicksort qs = new Quicksort();
+        int [] data = GenerateData.randomSeededArray(2000000,1337);
+
+//        qs.sort(data);
+        qsp.sort(data);
+
         JFreeChart lineChart = ChartFactory.createLineChart(
                 "title",
                 "Years", "Number of Schools",
