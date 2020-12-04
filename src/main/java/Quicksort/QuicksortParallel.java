@@ -8,9 +8,13 @@ package Quicksort;
  * https://www.vogella.com/tutorials/JavaAlgorithmsQuicksortParallel/article.html
  * Writing our own Quicksort method is not required per assignment, and is thus copied for sake of ease.
  */
-public class QuicksortParallel {
+public class QuicksortParallel extends Thread {
+
+    final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
+    private int numberOfThreads = 1;
     private int [] numbers;
     private int number;
+    private int i,j;
 
     public void sort(int [] values) {
         // check for empty or null array
@@ -23,7 +27,8 @@ public class QuicksortParallel {
     }
 
     private void quicksort(int low, int high) {
-        int i = low, j = high;
+        i = low;
+        j = high;
         // Get the pivot element from the middle of the list
         int pivot = numbers[low + (high-low)/2];
 
@@ -51,11 +56,35 @@ public class QuicksortParallel {
                 j--;
             }
         }
-        // Recursion
-        if (low < j)
-            quicksort(low, j);
-        if (i < high)
-            quicksort(i, high);
+
+        // If max threads not used, start thread for sorting
+        if (numberOfThreads < MAX_THREADS) {
+
+            if (low < j)
+                quicksort(low, j);
+
+            System.out.println("test");
+
+            new Thread(new QuicksortParallel()).start();
+            Thread t1 = new Thread(() -> {
+                // run quicksort here
+                if (i < high)
+                    quicksort(i, high);
+                numberOfThreads--;
+            });
+
+            numberOfThreads++;
+
+            t1.start();
+
+        } else {
+            // If max threads is used, start doing normal quicksort
+            // Recursion
+            if (low < j)
+                quicksort(low, j);
+            if (i < high)
+                quicksort(i, high);
+        }
     }
 
     private void exchange(int i, int j) {
@@ -65,7 +94,7 @@ public class QuicksortParallel {
     }
 
     public static void main(String[] args) {
-        Quicksort qs = new Quicksort();
+        QuicksortParallel qs = new QuicksortParallel();
         int [] array = GenerateData.randomSeededArray(2000000,1337);
 
         System.out.println(array[5] + " " + array[50000-1]);
