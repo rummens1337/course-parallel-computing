@@ -1,6 +1,6 @@
 import Quicksort.GenerateData;
-import Quicksort.QuicksortParallel;
 import Quicksort.Quicksort;
+import Quicksort.QuicksortParallel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -25,19 +25,21 @@ public class PA2 {
 
         QuicksortParallel qsp = new QuicksortParallel();
         Quicksort qs = new Quicksort();
-        int [] data = GenerateData.randomSeededArray(20000000,1337);
+        int [] data = GenerateData.randomSeededArray(50000000,1337);
+
+//        Instant start2 = Instant.now();
+//        qs.sort(data);
+//        Instant end2 = Instant.now();
+//        Duration timeElapsed2 = Duration.between(start2, end2);
+//        System.out.println("Regular: " + timeElapsed2);
 
         Instant start = Instant.now();
         qsp.sort(data);
         Instant end = Instant.now();
         Duration timeElapsed = Duration.between(start, end);
         System.out.println("parallel: " + timeElapsed);
-
-        Instant start2 = Instant.now();
-        qs.sort(data);
-        Instant end2 = Instant.now();
-        Duration timeElapsed2 = Duration.between(start2, end2);
-        System.out.println("Regular: " + timeElapsed2);
+//        6.161098533S
+//        PT6.255197507S
 //        JFreeChart lineChart = ChartFactory.createLineChart(
 //                "title",
 //                "Years", "Number of Schools",
@@ -48,7 +50,7 @@ public class PA2 {
 //        exportChartToPng("chart1.png", lineChart, 800, 800);
     }
 
-//    public static void calculateTime(Callable<PA2> func) throws Exception {
+//    public static void calculateTime(Object object, int [] array) throws Exception {
 //        Instant start = Instant.now();
 //        func.call();
 //        Instant end = Instant.now();

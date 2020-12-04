@@ -66,39 +66,26 @@ public class QuicksortParallel extends Thread {
 
         // If max threads not used, start thread for sorting
         if (sem.tryAcquire()) {
-            System.out.println("here");
-            int k = i;
-            System.out.println("MAX_THREADS:" + MAX_THREADS);
-            System.out.println("Acquire a semaphore from the pool");
+            // Create semi-final variable x, needed in lambda expression.
+            int x = i;
             sem.acquire();
+
             new Thread(new QuicksortParallel()).start();
             Thread t1 = new Thread(() -> {
                 try {
                     // run quicksort here
-                    if (k < high) {
-                        System.out.println("test:" + k);
-                        quicksort(k, high);
-
-                        System.out.println("Releasing the semaphore");
+                    if (x < high) {
+                        quicksort(x, high);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             });
 
+            if (low < j)
+                quicksort(low, j);
+
             t1.start();
-            t1.join();
-
-            if (low < j)
-                quicksort(low, j);
-
-        } else {
-            // If max threads is used, start doing quicksort on current thread only
-            // Recursion
-            if (low < j)
-                quicksort(low, j);
-            if (i < high)
-                quicksort(i, high);
         }
     }
 
