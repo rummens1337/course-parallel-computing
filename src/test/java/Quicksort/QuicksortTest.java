@@ -23,8 +23,7 @@ public class QuicksortTest {
     @BeforeAll
     static void setUp() {
         System.out.println("#### Quicksort tests ####");
-        GenerateData gd = new GenerateData();
-        numbers = gd.randomSeededArray(SIZE, SEED);
+        numbers = GenerateData.randomSeededArray(SIZE, SEED);
     }
 
     @Test

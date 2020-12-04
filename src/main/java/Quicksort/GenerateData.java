@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class GenerateData {
-    public int[] randomSeededArray(int amount, int seed) {
+public abstract class GenerateData {
+    public static int[] randomSeededArray(int amount, int seed) {
         ArrayList<Integer> list = new ArrayList<>(amount);
 
         for (int i = 0; i <= amount - 1; i++) {

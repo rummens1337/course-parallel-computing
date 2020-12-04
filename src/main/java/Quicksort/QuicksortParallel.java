@@ -66,8 +66,7 @@ public class QuicksortParallel {
 
     public static void main(String[] args) {
         Quicksort qs = new Quicksort();
-        GenerateData gd = new GenerateData();
-        int [] array = gd.randomSeededArray(2000000,1337);
+        int [] array = GenerateData.randomSeededArray(2000000,1337);
 
         System.out.println(array[5] + " " + array[50000-1]);
         System.out.println(array.length);

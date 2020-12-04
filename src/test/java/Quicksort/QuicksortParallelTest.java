@@ -23,8 +23,7 @@ public class QuicksortParallelTest {
     @BeforeAll
     static void setUp() {
         System.out.println("#### QuicksortParallel tests ####");
-        GenerateData gd = new GenerateData();
-        numbers = gd.randomSeededArray(SIZE, SEED);
+        numbers = GenerateData.randomSeededArray(SIZE, SEED);
     }
 
     @Test
