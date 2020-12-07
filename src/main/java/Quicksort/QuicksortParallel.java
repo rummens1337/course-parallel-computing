@@ -68,7 +68,7 @@ public class QuicksortParallel extends Thread {
         if (sem.tryAcquire()) {
             // Create semi-final variable x, needed in lambda expression.
             int x = i;
-            sem.acquire();
+            sem.acquire(); 
 
             new Thread(new QuicksortParallel()).start();
             Thread t1 = new Thread(() -> {
