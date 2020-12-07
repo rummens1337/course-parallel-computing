@@ -1,13 +1,14 @@
 import Quicksort.GenerateData;
 import Quicksort.Quicksort;
 import Quicksort.QuicksortParallel;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import java.io.File;
-import java.time.Duration;
-import java.time.Instant;
 
 /**
  * ASSIGNMENT
@@ -21,46 +22,49 @@ import java.time.Instant;
  * calculated during the design phase.
  */
 public class PA2 {
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws InterruptedException {
 
         QuicksortParallel qsp = new QuicksortParallel();
+        XYSeries qspData = new XYSeries("Parallel Quicksort");
         Quicksort qs = new Quicksort();
-        int [] data = GenerateData.randomSeededArray(50000000,1337);
+        XYSeries qsData = new XYSeries("Regular Quicksort");
+        int[][] dataArrayRegular = GenerateData.twoDimensionalDataArray(500000, 7);
+        int[][] dataArrayParallel = GenerateData.twoDimensionalDataArray(500000, 7);
+        XYSeriesCollection dataset = new XYSeriesCollection();
 
-        Instant start2 = Instant.now();
-        qs.sort(data);
-        Instant end2 = Instant.now();
-        Duration timeElapsed2 = Duration.between(start2, end2);
-        System.out.println("Regular: " + timeElapsed2);
+        for (int[] array : dataArrayRegular) {
+            Thread.sleep(3000);
+            long start = System.nanoTime();
+            qs.sort(array);
+            long end = System.nanoTime();
+            long durationMs = (end-start)/1000000;
+            System.out.println(durationMs);
+            qsData.add(array.length, durationMs);
+        }
 
-//        Instant start = Instant.now();
-//        qsp.sort(data);
-//
-//        for (int i: data) {
-//            System.out.println(i);
-//        }
-//        Instant end = Instant.now();
-//        Duration timeElapsed = Duration.between(start, end);
-//        System.out.println("parallel: " + timeElapsed);
-//        6.161098533S
-//        PT6.255197507S
-//        JFreeChart lineChart = ChartFactory.createLineChart(
-//                "title",
-//                "Years", "Number of Schools",
-//                createDataset(),
-//                PlotOrientation.VERTICAL,
-//                true, true, false);
-//
-//        exportChartToPng("chart1.png", lineChart, 800, 800);
+        for (int[] array : dataArrayParallel) {
+            Thread.sleep(3000);
+            long start = System.nanoTime();
+            qsp.sort(array);
+            long end = System.nanoTime();
+            long durationMs = (end-start)/1000000;
+            System.out.println(durationMs);
+            qspData.add(array.length, durationMs);
+        }
+
+        dataset.addSeries(qspData);
+        dataset.addSeries(qsData);
+
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Quicksort vs Parallel Quicksort",
+                "Data size", "Time in Milliseconds",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, true, false);
+
+        exportChartToPng("chart1.png", chart, 800, 800);
     }
-
-//    public static void calculateTime(Object object, int [] array) throws Exception {
-//        Instant start = Instant.now();
-//        func.call();
-//        Instant end = Instant.now();
-//        Duration timeElapsed = Duration.between(start, end);
-//        return func.call();
-//    }
 
     public static void exportChartToPng(String filename, JFreeChart chart, int width, int height) {
         try {
@@ -77,16 +81,5 @@ public class PA2 {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static DefaultCategoryDataset createDataset() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.addValue(15, "schools", "1970");
-        dataset.addValue(30, "schools", "1980");
-        dataset.addValue(60, "schools", "1990");
-        dataset.addValue(120, "schools", "2000");
-        dataset.addValue(240, "schools", "2010");
-        dataset.addValue(300, "schools", "2014");
-        return dataset;
     }
 }
