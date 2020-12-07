@@ -1,13 +1,18 @@
 import Quicksort.GenerateData;
 import Quicksort.Quicksort;
 import Quicksort.QuicksortParallel;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 /**
  * ASSIGNMENT
@@ -21,46 +26,55 @@ import java.time.Instant;
  * calculated during the design phase.
  */
 public class PA2 {
-    public static void main(String[] args) {
+
+    public static JFreeChart chart;
+
+    public static void main(String[] args) throws InterruptedException {
 
         QuicksortParallel qsp = new QuicksortParallel();
+        XYSeries qspData = new XYSeries("Parallel Quicksort");
         Quicksort qs = new Quicksort();
-        int [] data = GenerateData.randomSeededArray(50000000,1337);
+        XYSeries qsData = new XYSeries("Regular Quicksort");
+        int[][] dataArray = GenerateData.twoDimensionalDataArray(50000, 8);
+        XYSeriesCollection dataset = new XYSeriesCollection();
 
-        Instant start2 = Instant.now();
-        qs.sort(data);
-        Instant end2 = Instant.now();
-        Duration timeElapsed2 = Duration.between(start2, end2);
-        System.out.println("Regular: " + timeElapsed2);
+        for (int[] array : dataArray) {
+            Thread.sleep(5000);
+            Instant start = Instant.now();
+            qsp.sort(array);
+            Instant end2 = Instant.now();
+            Duration timeElapsed2 = Duration.between(start, end2);
+            qspData.add(array.length, Duration.of(timeElapsed2.getNano(), ChronoUnit.NANOS).toMillis());
+        }
 
-//        Instant start = Instant.now();
-//        qsp.sort(data);
+        dataset.addSeries(qspData);
+
+
+//        Instant start2 = Instant.now();
+//        qs.sort(dataArray[0]);
+//        Instant end2 = Instant.now();
+//        Duration timeElapsed2 = Duration.between(start2, end2);
+//        System.out.println("Regular: " + timeElapsed2);
 //
-//        for (int i: data) {
+//        Instant start = Instant.now();
+//        qsp.sort(dataArray[0]);
+//
+//        for (int i: dataArray[0]) {
 //            System.out.println(i);
 //        }
 //        Instant end = Instant.now();
 //        Duration timeElapsed = Duration.between(start, end);
 //        System.out.println("parallel: " + timeElapsed);
-//        6.161098533S
-//        PT6.255197507S
-//        JFreeChart lineChart = ChartFactory.createLineChart(
-//                "title",
-//                "Years", "Number of Schools",
-//                createDataset(),
-//                PlotOrientation.VERTICAL,
-//                true, true, false);
 //
-//        exportChartToPng("chart1.png", lineChart, 800, 800);
-    }
+        chart = ChartFactory.createXYLineChart(
+                "Quicksort vs Parallel Quicksort",
+                "Time in Milliseconds", "Data size",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, true, false);
 
-//    public static void calculateTime(Object object, int [] array) throws Exception {
-//        Instant start = Instant.now();
-//        func.call();
-//        Instant end = Instant.now();
-//        Duration timeElapsed = Duration.between(start, end);
-//        return func.call();
-//    }
+        exportChartToPng("chart1.png", chart, 800, 800);
+    }
 
     public static void exportChartToPng(String filename, JFreeChart chart, int width, int height) {
         try {
