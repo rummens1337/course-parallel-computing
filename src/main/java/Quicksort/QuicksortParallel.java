@@ -12,11 +12,15 @@ import java.util.concurrent.Semaphore;
  */
 public class QuicksortParallel extends Thread {
 
-    final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
+    private int nrOfThreads = Runtime.getRuntime().availableProcessors();
     private Semaphore sem;
-    private int [] numbers;
+    private volatile int [] numbers;
     private int number;
 
+    public void sort(int [] values, int nrOfThreads){
+        this.nrOfThreads = nrOfThreads;
+        sort(values);
+    }
     public void sort(int [] values) {
         // check for empty or null array
         if (values ==null || values.length==0){
@@ -24,7 +28,7 @@ public class QuicksortParallel extends Thread {
         }
         this.numbers = values;
         number = values.length;
-        sem = new Semaphore(MAX_THREADS);
+        sem = new Semaphore(nrOfThreads);
 
         try {
             quicksort(0, number - 1);
@@ -65,7 +69,7 @@ public class QuicksortParallel extends Thread {
         }
 
         // If max threads not used, start thread for sorting
-        if (sem.tryAcquire()) {
+        if (sem.tryAcquire() && nrOfThreads != 1) {
             // Create semi-final variable x, needed in lambda expression.
             int x = i;
             sem.acquire(); 

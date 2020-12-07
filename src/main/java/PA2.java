@@ -22,39 +22,51 @@ import java.io.File;
  * calculated during the design phase.
  */
 public class PA2 {
+    static volatile int[][] dataArrayParallel;
 
     public static void main(String[] args) throws InterruptedException {
+        int[] nrOfCores = {1, 2, 4, 8};
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        final int START_AMOUNT = 500000;
+        final int ITERATIONS = 7;
 
+        // Create and instantiate parallel
         QuicksortParallel qsp = new QuicksortParallel();
-        XYSeries qspData = new XYSeries("Parallel Quicksort");
+
+        // Create and instantiate regular
         Quicksort qs = new Quicksort();
         XYSeries qsData = new XYSeries("Regular Quicksort");
-        int[][] dataArrayRegular = GenerateData.twoDimensionalDataArray(500000, 7);
-        int[][] dataArrayParallel = GenerateData.twoDimensionalDataArray(500000, 7);
-        XYSeriesCollection dataset = new XYSeriesCollection();
+        int[][] dataArrayRegular = GenerateData.twoDimensionalDataArray(START_AMOUNT, ITERATIONS);
 
+        // Sort and calculate regular
         for (int[] array : dataArrayRegular) {
             Thread.sleep(3000);
             long start = System.nanoTime();
             qs.sort(array);
             long end = System.nanoTime();
-            long durationMs = (end-start)/1000000;
+            long durationMs = (end - start) / 1000000;
             System.out.println(durationMs);
             qsData.add(array.length, durationMs);
         }
 
-        for (int[] array : dataArrayParallel) {
-            Thread.sleep(3000);
-            long start = System.nanoTime();
-            qsp.sort(array);
-            long end = System.nanoTime();
-            long durationMs = (end-start)/1000000;
-            System.out.println(durationMs);
-            qspData.add(array.length, durationMs);
-        }
-
-        dataset.addSeries(qspData);
         dataset.addSeries(qsData);
+
+        // Sort and calculate parallel
+        for(int cores : nrOfCores) {
+            dataArrayParallel = GenerateData.twoDimensionalDataArray(START_AMOUNT, ITERATIONS);
+            XYSeries qspData = new XYSeries("Parallel Quicksort: " + cores);
+
+            for (int[] array : dataArrayParallel) {
+                Thread.sleep(3000);
+                long start = System.nanoTime();
+                qsp.sort(array, cores);
+                long end = System.nanoTime();
+                long durationMs = (end - start) / 1000000;
+                System.out.println(durationMs);
+                qspData.add(array.length, durationMs);
+            }
+            dataset.addSeries(qspData);
+        }
 
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "Quicksort vs Parallel Quicksort",
@@ -63,7 +75,7 @@ public class PA2 {
                 PlotOrientation.VERTICAL,
                 true, true, false);
 
-        exportChartToPng("chart1.png", chart, 800, 800);
+        exportChartToPng("chart2.png", chart, 800, 800);
     }
 
     public static void exportChartToPng(String filename, JFreeChart chart, int width, int height) {
