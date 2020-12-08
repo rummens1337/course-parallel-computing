@@ -3,8 +3,7 @@ package Quicksort;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * QuicksortParallelTest to check correct implementation of QuicksortParallel.
@@ -16,28 +15,31 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class QuicksortParallelTest {
 
-    private final static int SIZE = 50000;
+    private final static int SIZE = 500000;
     private final static int SEED = 1337;
 
     @BeforeAll
     static void setUp() {
-        System.out.println("#### QuicksortParallel tests ####");
+        System.out.println("\n\n#### QuicksortParallel tests ####");
     }
 
     @Test
     public void testNull() {
+        System.out.println("Run parallel quicksort with 'null' as argument");
         QuicksortParallel sorter = new QuicksortParallel();
         sorter.sort(null);
     }
 
     @Test
     public void testEmpty() {
+        System.out.println("Run parallel quicksort with an empty data set");
         QuicksortParallel sorter = new QuicksortParallel();
         sorter.sort(new int[0]);
     }
 
     @Test
     public void testSimpleElement() {
+        System.out.println("Run parallel quicksort with a data set of 1 element");
         QuicksortParallel sorter = new QuicksortParallel();
         int[] test = new int[1];
         test[0] = 5;
@@ -46,6 +48,7 @@ public class QuicksortParallelTest {
 
     @Test
     public void testSpecial() {
+        System.out.println("Run parallel quicksort with duplicate data array");
         QuicksortParallel sorter = new QuicksortParallel();
         int[] test = { 5, 5, 6, 6, 4, 4, 5, 5, 4, 4, 6, 6, 5, 5 };
         sorter.sort(test);
@@ -56,6 +59,7 @@ public class QuicksortParallelTest {
 
     @Test
     public void testQuicksortParallel() {
+        System.out.println("Run parallel quicksort with max amount of threads");
         QuicksortParallel sorter = new QuicksortParallel();
         int [] numbers = GenerateData.randomSeededArray(SIZE, SEED);
         sorter.sort(numbers);
@@ -63,6 +67,71 @@ public class QuicksortParallelTest {
         if (!validate(numbers)) {
             fail("Array was not correctly sorted.");
         }
+        assertTrue(true);
+    }
+
+    @Test
+    public void testQuicksortParallel1Threads() {
+        System.out.println("Run parallel quicksort with 1 thread");
+
+        final int NR_OF_THREADS = 1;
+        QuicksortParallel sorter = new QuicksortParallel();
+        int [] numbers = GenerateData.randomSeededArray(SIZE, SEED);
+        sorter.sort(numbers, NR_OF_THREADS);
+
+        if (!validate(numbers)) {
+            fail("Array was not correctly sorted.");
+        }
+
+        assertEquals(NR_OF_THREADS, sorter.getNrOfStartedThreads());
+        assertTrue(true);
+    }
+
+    @Test
+    public void testQuicksortParallel2Threads() {
+        System.out.println("Run parallel quicksort with 2 threads");
+        final int NR_OF_THREADS = 2;
+        QuicksortParallel sorter = new QuicksortParallel();
+        int [] numbers = GenerateData.randomSeededArray(SIZE, SEED);
+        sorter.sort(numbers, NR_OF_THREADS);
+
+        if (!validate(numbers)) {
+            fail("Array was not correctly sorted.");
+        }
+
+        assertEquals(NR_OF_THREADS, sorter.getNrOfStartedThreads());
+        assertTrue(true);
+    }
+
+    @Test
+    public void testQuicksortParallel4Threads() {
+        System.out.println("Run parallel quicksort with 4 threads");
+        final int NR_OF_THREADS = 4;
+        QuicksortParallel sorter = new QuicksortParallel();
+        int [] numbers = GenerateData.randomSeededArray(SIZE, SEED);
+        sorter.sort(numbers, NR_OF_THREADS);
+
+        if (!validate(numbers)) {
+            fail("Array was not correctly sorted.");
+        }
+
+        assertEquals(NR_OF_THREADS, sorter.getNrOfStartedThreads());
+        assertTrue(true);
+    }
+
+    @Test
+    public void testQuicksortParallel8Threads() {
+        System.out.println("Run parallel quicksort with 8 threads");
+        final int NR_OF_THREADS = 8;
+        QuicksortParallel sorter = new QuicksortParallel();
+        int [] numbers = GenerateData.randomSeededArray(SIZE, SEED);
+        sorter.sort(numbers, NR_OF_THREADS);
+
+        if (!validate(numbers)) {
+            fail("Array was not correctly sorted.");
+        }
+
+        assertEquals(NR_OF_THREADS, sorter.getNrOfStartedThreads());
         assertTrue(true);
     }
 

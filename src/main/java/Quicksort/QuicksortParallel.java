@@ -1,6 +1,7 @@
 package Quicksort;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Quicksort method te calculate speed of quicksort.
@@ -11,11 +12,10 @@ import java.util.concurrent.Semaphore;
  * Writing our own Quicksort method is not required per assignment, and is thus copied for sake of ease.
  */
 public class QuicksortParallel extends Thread {
-
     private int nrOfThreads = Runtime.getRuntime().availableProcessors();
+    private AtomicInteger nrOfStartedThreads;
     private Semaphore sem;
     private volatile int [] numbers;
-    private int number;
 
     public void sort(int [] values, int nrOfThreads){
         this.nrOfThreads = nrOfThreads;
@@ -26,11 +26,16 @@ public class QuicksortParallel extends Thread {
         if (values ==null || values.length==0){
             return;
         }
+
         this.numbers = values;
-        number = values.length;
-        sem = new Semaphore(nrOfThreads);
+        int number = values.length;
+
+        sem = new Semaphore(nrOfThreads - 1); // already count current thread
+        nrOfStartedThreads = new AtomicInteger(0);
 
         try {
+            // Count current thread as new thread.
+            nrOfStartedThreads.incrementAndGet();
             quicksort(0, number - 1);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -72,7 +77,6 @@ public class QuicksortParallel extends Thread {
         if (sem.tryAcquire() && nrOfThreads != 1) {
             // Create semi-final variable x, needed in lambda expression.
             int x = i;
-            sem.acquire(); 
 
             new Thread(new QuicksortParallel()).start();
             Thread t1 = new Thread(() -> {
@@ -87,9 +91,13 @@ public class QuicksortParallel extends Thread {
             });
 
             t1.start();
+            // Increment amount of threads when new thread is started.
+            nrOfStartedThreads.incrementAndGet();
 
             if (low < j)
                 quicksort(low, j);
+
+            t1.join();
         }else{
             if (low < j)
                 quicksort(low, j);
@@ -98,9 +106,13 @@ public class QuicksortParallel extends Thread {
         }
     }
 
-    private void exchange(int i, int j) {
+    private synchronized void exchange(int i, int j) {
         int temp = numbers[i];
         numbers[i] = numbers[j];
         numbers[j] = temp;
+    }
+
+    public int getNrOfStartedThreads() {
+        return nrOfStartedThreads.intValue();
     }
 }

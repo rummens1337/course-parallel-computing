@@ -21,23 +21,26 @@ public class QuicksortTest {
 
     @BeforeAll
     static void setUp() {
-        System.out.println("#### Quicksort tests ####");
+        System.out.println("\n\n#### Quicksort tests ####");
     }
 
     @Test
     public void testNull() {
+        System.out.println("Run quicksort with 'null' as argument");
         Quicksort sorter = new Quicksort();
         sorter.sort(null);
     }
 
     @Test
     public void testEmpty() {
+        System.out.println("Run quicksort with an empty data set");
         Quicksort sorter = new Quicksort();
         sorter.sort(new int[0]);
     }
 
     @Test
     public void testSimpleElement() {
+        System.out.println("Run quicksort with a data set of 1 element");
         Quicksort sorter = new Quicksort();
         int[] test = new int[1];
         test[0] = 5;
@@ -46,6 +49,7 @@ public class QuicksortTest {
 
     @Test
     public void testSpecial() {
+        System.out.println("Run quicksort with duplicate data array");
         Quicksort sorter = new Quicksort();
         int[] test = { 5, 5, 6, 6, 4, 4, 5, 5, 4, 4, 6, 6, 5, 5 };
         sorter.sort(test);
@@ -56,6 +60,7 @@ public class QuicksortTest {
 
     @Test
     public void testQuickSort() {
+        System.out.println("Run quicksort with generated data set");
         int [] numbers = GenerateData.randomSeededArray(SIZE, SEED);
         Quicksort sorter = new Quicksort();
         sorter.sort(numbers);

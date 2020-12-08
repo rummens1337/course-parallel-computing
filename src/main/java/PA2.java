@@ -28,7 +28,7 @@ public class PA2 {
         int[] nrOfCores = {1, 2, 4, 8};
         XYSeriesCollection dataset = new XYSeriesCollection();
         final int START_AMOUNT = 500000;
-        final int ITERATIONS = 7;
+        final int ITERATIONS = 3;
 
         // Create and instantiate parallel
         QuicksortParallel qsp = new QuicksortParallel();
@@ -43,6 +43,7 @@ public class PA2 {
             Thread.sleep(3000);
             long start = System.nanoTime();
             qs.sort(array);
+            validate(array); // validate sorted array.
             long end = System.nanoTime();
             long durationMs = (end - start) / 1000000;
             System.out.println(durationMs);
@@ -60,6 +61,7 @@ public class PA2 {
                 Thread.sleep(3000);
                 long start = System.nanoTime();
                 qsp.sort(array, cores);
+                validate(array); // validate sorted array.
                 long end = System.nanoTime();
                 long durationMs = (end - start) / 1000000;
                 System.out.println(durationMs);
@@ -92,6 +94,27 @@ public class PA2 {
             ChartUtilities.saveChartAsPNG(new File(directoryName + filename), chart, width, height);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Validates whether an array is correctly sorted.
+     * Exits program if not valid.
+     * @param numbers array of int values
+     */
+    private static void validate(int[] numbers) {
+        boolean error = false;
+        for (int i = 0; i < numbers.length - 1; i++) {
+            if (numbers[i] > numbers[i + 1]) {
+                error = true;
+                break;
+            }
+        }
+
+        if(error) {
+            System.err.println(Thread.currentThread().getStackTrace()[1]);
+            System.err.println("Array was not correctly sorted!");
+            System.exit(-1);
         }
     }
 }
