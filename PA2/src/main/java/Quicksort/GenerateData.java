@@ -21,7 +21,7 @@ public abstract class GenerateData {
 
         for (int i = 0; i < iterations; i++) {
             System.out.println(startAmount);
-            dataArray[i] = GenerateData.randomSeededArray(startAmount, 1337);
+            dataArray[i] = GenerateData.randomSeededArray(startAmount, 4123);
             startAmount += startAmount;
         }
 

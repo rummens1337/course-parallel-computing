@@ -25,10 +25,11 @@ public class PA2 {
     static volatile int[][] dataArrayParallel;
 
     public static void main(String[] args) throws InterruptedException {
-        int[] nrOfCores = {1, 2, 4, 8};
+
+        int[] nrOfCores = {8};
         XYSeriesCollection dataset = new XYSeriesCollection();
-        final int START_AMOUNT = 500000;
-        final int ITERATIONS = 3;
+        final int START_AMOUNT = 400000;
+        final int ITERATIONS = 5;
 
         // Create and instantiate parallel
         QuicksortParallel qsp = new QuicksortParallel();
@@ -38,21 +39,21 @@ public class PA2 {
         XYSeries qsData = new XYSeries("Regular Quicksort");
         int[][] dataArrayRegular = GenerateData.twoDimensionalDataArray(START_AMOUNT, ITERATIONS);
 
-        // Sort and calculate regular
+//        // Sort and calculate regular
         for (int[] array : dataArrayRegular) {
             Thread.sleep(3000);
             long start = System.nanoTime();
             qs.sort(array);
-            validate(array); // validate sorted array.
             long end = System.nanoTime();
             long durationMs = (end - start) / 1000000;
+            validate(array); // validate sorted array.
             System.out.println(durationMs);
             qsData.add(array.length, durationMs);
         }
 
         dataset.addSeries(qsData);
 
-        // Sort and calculate parallel
+//         Sort and calculate parallel
         for(int cores : nrOfCores) {
             dataArrayParallel = GenerateData.twoDimensionalDataArray(START_AMOUNT, ITERATIONS);
             XYSeries qspData = new XYSeries("Parallel Quicksort: " + cores);
@@ -61,9 +62,9 @@ public class PA2 {
                 Thread.sleep(3000);
                 long start = System.nanoTime();
                 qsp.sort(array, cores);
-                validate(array); // validate sorted array.
                 long end = System.nanoTime();
                 long durationMs = (end - start) / 1000000;
+                validate(array); // validate sorted array.
                 System.out.println(durationMs);
                 qspData.add(array.length, durationMs);
             }

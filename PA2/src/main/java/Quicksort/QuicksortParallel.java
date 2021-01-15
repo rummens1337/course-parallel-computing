@@ -13,14 +13,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class QuicksortParallel extends Thread {
     private int nrOfThreads = Runtime.getRuntime().availableProcessors();
-    private AtomicInteger nrOfStartedThreads;
+    private AtomicInteger nrOfStartedThreads; // Used to validate amount threads started in the tests.
     private Semaphore sem;
-    private volatile int [] numbers;
+    private int [] numbers;
 
     public void sort(int [] values, int nrOfThreads){
         this.nrOfThreads = nrOfThreads;
         sort(values);
     }
+
     public void sort(int [] values) {
         // check for empty or null array
         if (values ==null || values.length==0){
@@ -74,17 +75,18 @@ public class QuicksortParallel extends Thread {
         }
 
         // If max threads not used, start thread for sorting
-        if (sem.tryAcquire() && nrOfThreads != 1) {
+        if (sem.tryAcquire()) {
             // Create semi-final variable x, needed in lambda expression.
             int x = i;
 
-            new Thread(new QuicksortParallel()).start();
             Thread t1 = new Thread(() -> {
                 try {
                     // run quicksort here
                     if (x < high) {
+                        System.out.println("x + high" + x + " " + high);
                         quicksort(x, high);
                     }
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -92,7 +94,7 @@ public class QuicksortParallel extends Thread {
 
             t1.start();
             // Increment amount of threads when new thread is started.
-            nrOfStartedThreads.incrementAndGet();
+            nrOfStartedThreads.incrementAndGet(); // Used to validate amount threads started in the tests.
 
             if (low < j)
                 quicksort(low, j);
@@ -106,7 +108,7 @@ public class QuicksortParallel extends Thread {
         }
     }
 
-    private synchronized void exchange(int i, int j) {
+    private void exchange(int i, int j) {
         int temp = numbers[i];
         numbers[i] = numbers[j];
         numbers[j] = temp;
