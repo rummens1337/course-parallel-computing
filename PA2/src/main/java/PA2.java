@@ -58,15 +58,16 @@ public class PA2 {
             dataArrayParallel = GenerateData.twoDimensionalDataArray(START_AMOUNT, ITERATIONS);
             XYSeries qspData = new XYSeries("Parallel Quicksort: " + cores);
 
-            for (int[] array : dataArrayParallel) {
+            for (int i = 0; i < dataArrayParallel.length - 1; i++) {
                 Thread.sleep(3000);
                 long start = System.nanoTime();
-                qsp.sort(array, cores);
+                qsp.sort(dataArrayParallel[i], cores);
                 long end = System.nanoTime();
                 long durationMs = (end - start) / 1000000;
-                validate(array); // validate sorted array.
+                validate(dataArrayParallel[i]); // validate sorted array.
+                validateEquallySorted(dataArrayParallel[i], dataArrayRegular[i]); // validate against regular quicksort
                 System.out.println(durationMs);
-                qspData.add(array.length, durationMs);
+                qspData.add(dataArrayParallel[i].length, durationMs);
             }
             dataset.addSeries(qspData);
         }
@@ -81,6 +82,14 @@ public class PA2 {
         exportChartToPng("chart2.png", chart, 800, 800);
     }
 
+    /**
+     * Exports a JFreeChart object to a png in the images directory.
+     *
+     * @param filename Name of the file to export to
+     * @param chart JFreeChart object
+     * @param width Width of the target image.
+     * @param height Height of the target image.
+     */
     public static void exportChartToPng(String filename, JFreeChart chart, int width, int height) {
         try {
             String directoryName = "images/";
@@ -115,6 +124,31 @@ public class PA2 {
         if(error) {
             System.err.println(Thread.currentThread().getStackTrace()[1]);
             System.err.println("Array was not correctly sorted!");
+            System.exit(-1);
+        }
+    }
+
+    /**
+     * Validates whether two arrays are sorted in the same manner.
+     * Exits program if not valid.
+     * @param sourceArray array to be compared
+     * @param targetArray array to be compared against
+     */
+    private static void validateEquallySorted(int[] sourceArray, int[] targetArray) {
+        boolean error = false;
+
+        if(sourceArray.length == targetArray.length){
+            for (int i = 0; i < sourceArray.length - 1; i++) {
+                if (!(sourceArray[i] == targetArray[i])) {
+                    error = true;
+                    break;
+                }
+            }
+        }
+
+        if(error) {
+            System.err.println(Thread.currentThread().getStackTrace()[1]);
+            System.err.println("Array was not correctly sorted in comparison to the regular quicksort method!");
             System.exit(-1);
         }
     }
