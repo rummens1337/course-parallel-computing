@@ -26,9 +26,9 @@ public class PA2 {
 
     public static void main(String[] args) throws InterruptedException {
 
-        int[] nrOfCores = {8};
+        int[] nrOfCores = {2, 4, 8};
         XYSeriesCollection dataset = new XYSeriesCollection();
-        final int START_AMOUNT = 400000;
+        final int START_AMOUNT = 5000000;
         final int ITERATIONS = 5;
 
         // Create and instantiate parallel

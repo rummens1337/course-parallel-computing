@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Quicksort method te calculate speed of quicksort.
- *
+ * <p>
  * DISCLAIMER
  * This is NOT fully our own work, and is partially copied from
  * https://www.vogella.com/tutorials/JavaAlgorithmsQuicksortParallel/article.html
@@ -15,16 +15,16 @@ public class QuicksortParallel extends Thread {
     private int nrOfThreads = Runtime.getRuntime().availableProcessors();
     private AtomicInteger nrOfStartedThreads; // Used to validate amount threads started in the tests.
     private Semaphore sem;
-    private int [] numbers;
+    private int[] numbers;
 
-    public void sort(int [] values, int nrOfThreads){
+    public void sort(int[] values, int nrOfThreads) {
         this.nrOfThreads = nrOfThreads;
         sort(values);
     }
 
-    public void sort(int [] values) {
+    public void sort(int[] values) {
         // check for empty or null array
-        if (values ==null || values.length==0){
+        if (values == null || values.length == 0) {
             return;
         }
 
@@ -37,17 +37,17 @@ public class QuicksortParallel extends Thread {
         try {
             // Count current thread as new thread.
             nrOfStartedThreads.incrementAndGet();
-            quicksort(0, number - 1);
+            quicksort(0, 0, number - 1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private void quicksort(int low, int high) throws InterruptedException {
+    private void quicksort(int node, int low, int high) throws InterruptedException {
         int i = low;
         int j = high;
         // Get the pivot element from the middle of the list
-        int pivot = numbers[low + (high-low)/2];
+        int pivot = numbers[low + (high - low) / 2];
 
         // Divide into two lists
         while (i <= j) {
@@ -75,7 +75,7 @@ public class QuicksortParallel extends Thread {
         }
 
         // If max threads not used, start thread for sorting
-        if (sem.tryAcquire()) {
+        if ((node + 1) < nrOfThreads && (node + 1) > 0) {
             // Create semi-final variable x, needed in lambda expression.
             int x = i;
 
@@ -83,8 +83,7 @@ public class QuicksortParallel extends Thread {
                 try {
                     // run quicksort here
                     if (x < high) {
-                        System.out.println("x + high" + x + " " + high);
-                        quicksort(x, high);
+                        quicksort(node * 2 + 1, x, high);
                     }
 
                 } catch (InterruptedException e) {
@@ -97,14 +96,14 @@ public class QuicksortParallel extends Thread {
             nrOfStartedThreads.incrementAndGet(); // Used to validate amount threads started in the tests.
 
             if (low < j)
-                quicksort(low, j);
+                quicksort(node * 2 + 1, low, j);
 
             t1.join();
-        }else{
+        } else {
             if (low < j)
-                quicksort(low, j);
+                quicksort(node * 2 + 1, low, j);
             if (i < high)
-                quicksort(i, high);
+                quicksort(node * 2 + 2, i, high);
         }
     }
 
