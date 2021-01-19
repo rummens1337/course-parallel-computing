@@ -58,7 +58,7 @@ public class PA2 {
             dataArrayParallel = GenerateData.twoDimensionalDataArray(START_AMOUNT, ITERATIONS);
             XYSeries qspData = new XYSeries("Parallel Quicksort: " + cores);
 
-            for (int i = 0; i < dataArrayParallel.length - 1; i++) {
+            for (int i = 0; i < dataArrayParallel.length; i++) {
                 Thread.sleep(3000);
                 long start = System.nanoTime();
                 qsp.sort(dataArrayParallel[i], cores);
