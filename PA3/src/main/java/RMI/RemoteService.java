@@ -1,4 +1,4 @@
-package test;
+package RMI;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
