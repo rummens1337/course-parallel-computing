@@ -1,5 +1,9 @@
 package Quicksort;
 
+import ActiveMQ.JmsHelper;
+import ActiveMQ.QuicksortData;
+
+import javax.jms.JMSException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,12 +20,18 @@ public class QuicksortParallel extends Thread {
     private AtomicInteger nrOfStartedThreads;
     private Semaphore sem;
     private volatile int [] numbers;
+    private QuicksortData quicksortData;
 
-    public void sort(int [] values, int nrOfThreads){
-        this.nrOfThreads = nrOfThreads;
-        sort(values);
-    }
-    public void sort(int [] values) {
+//    public void sort(int [] values, int low, int high, int nrOfThreads){
+//        this.nrOfThreads = nrOfThreads;
+//        sort(values, low, high);
+//    }
+    public void sort(QuicksortData quicksortData) {
+        this.quicksortData = quicksortData;
+        int [] values = quicksortData.getArray();
+        int low = quicksortData.getLow();
+        int high = quicksortData.getHigh();
+
         // check for empty or null array
         if (values ==null || values.length==0){
             return;
@@ -36,13 +46,13 @@ public class QuicksortParallel extends Thread {
         try {
             // Count current thread as new thread.
             nrOfStartedThreads.incrementAndGet();
-            quicksort(0, number - 1);
-        } catch (InterruptedException e) {
+            quicksort(low, high);
+        } catch (InterruptedException | JMSException e) {
             e.printStackTrace();
         }
     }
 
-    private void quicksort(int low, int high) throws InterruptedException {
+    private void quicksort(int low, int high) throws InterruptedException, JMSException {
         int i = low;
         int j = high;
         // Get the pivot element from the middle of the list
@@ -73,31 +83,15 @@ public class QuicksortParallel extends Thread {
             }
         }
 
-        // If max threads not used, start thread for sorting
-        if (sem.tryAcquire() && nrOfThreads != 1) {
-            // Create semi-final variable x, needed in lambda expression.
-            int x = i;
-
-            new Thread(new QuicksortParallel()).start();
-            Thread t1 = new Thread(() -> {
-                try {
-                    // run quicksort here
-                    if (x < high) {
-                        quicksort(x, high);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-
-            t1.start();
-            // Increment amount of threads when new thread is started.
-            nrOfStartedThreads.incrementAndGet();
-
-            if (low < j)
+        // If max enough items for another client, push high to unsorted queue
+        if (high - low > 10000) {
+            QuicksortData quicksortData = new QuicksortData(numbers, i, high);
+            JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED ,quicksortData);
+            if (low < j) {
+                this.quicksortData.setLow(low);
+                this.quicksortData.setHigh(j);
                 quicksort(low, j);
-
-            t1.join();
+            }
         }else{
             if (low < j)
                 quicksort(low, j);

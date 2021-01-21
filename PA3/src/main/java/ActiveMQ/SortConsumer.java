@@ -1,25 +1,50 @@
 package ActiveMQ;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.TextMessage;
+import javax.jms.*;
 
-public class SortConsumer implements MessageListener {
-    private String consumerName;
+import java.util.Arrays;
 
-    public SortConsumer(String consumerName) {
-        this.consumerName = consumerName;
-    }
+import Quicksort.QuicksortParallel;
 
-    public void onMessage(Message message) {
-        TextMessage textMessage = (TextMessage) message;
+public class SortConsumer implements MessageListener{
+    private int counter;
+
+    public SortConsumer(){
         try {
-            System.out.println(consumerName + " received "
-                    + textMessage.getText());
+            this.counter = 0;
+            JmsHelper.setMessageListener(JmsHelper.QUEUE_UNSORTED, this);
         } catch (JMSException e) {
             e.printStackTrace();
         }
     }
 
+    @Override
+    public void onMessage(Message m) {
+        try {
+            if (m instanceof ObjectMessage) {
+                ObjectMessage message = (ObjectMessage) m;
+                QuicksortData qsd = (QuicksortData) message.getObject();
+                QuicksortParallel qsp = new QuicksortParallel();
+
+                long start = System.nanoTime();
+                qsp.sort(qsd);
+                long end = System.nanoTime();
+                long durationMs = (end - start) / 1000000;
+                QuicksortData.validate(Arrays.copyOfRange(qsd.getArray(), qsd.getLow(), qsd.getHigh()));
+
+                JmsHelper.sendObjectEvent(JmsHelper.QUEUE_PARTIALLY_SORTED, qsd);
+
+                System.out.println("Duration MS: " + durationMs + " low: " +  qsd.getLow()  + " High: " + qsd.getHigh() + " Count: " + this.counter);
+            } else {
+                System.out.println("Unable to handle onMessage");
+            }
+        }catch(JMSException e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        new SortConsumer();
+        Thread.currentThread().join();
+    }
 }

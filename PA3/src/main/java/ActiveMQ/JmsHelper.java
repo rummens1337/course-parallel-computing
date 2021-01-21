@@ -8,6 +8,7 @@ import java.io.Serializable;
 public class JmsHelper {
     public static final String URL = "tcp://localhost:61616";
     public static final String QUEUE_SORTED = "sorted";
+    public static final String QUEUE_PARTIALLY_SORTED = "partially-sorted";
     public static final String QUEUE_UNSORTED = "unsorted";
     public static final ConnectionFactory CONNECTION_FACTORY = new ActiveMQConnectionFactory(URL);
 

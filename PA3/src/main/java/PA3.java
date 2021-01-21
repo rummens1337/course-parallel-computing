@@ -1,5 +1,6 @@
 import ActiveMQ.JmsHelper;
 import ActiveMQ.QuicksortData;
+import ActiveMQ.ValidateConsumer;
 import Quicksort.GenerateData;
 import Quicksort.Quicksort;
 import Quicksort.QuicksortParallel;
@@ -12,6 +13,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.jms.JMSException;
 import java.io.File;
+import java.util.Arrays;
 
 /**
  * ASSIGNMENT
@@ -28,11 +30,23 @@ public class PA3 {
     static volatile int[][] dataArrayParallel;
 
     public static void main(String[] args) throws InterruptedException, JMSException {
-        int[] arrau2 = GenerateData.randomSeededArray(50000, 1337);
-        QuicksortData qd = new QuicksortData(arrau2, 0, arrau2.length);
+        int[] array = GenerateData.randomSeededArray(40000, 1337);
+        QuicksortData qd = new QuicksortData(array, 0, array.length - 1);
         JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED, qd);
-        QuicksortData quicksortData = (QuicksortData) JmsHelper.retrieveObjectEvent(JmsHelper.QUEUE_SORTED); // Synchronized wait on sorted array (busy wait)
-        validate(quicksortData.getArray());
+
+        // Create validator
+        ValidateConsumer vc = new ValidateConsumer(array.length);
+        Thread validator = new Thread(vc);
+        validator.start();
+
+        // Retrieve
+        System.out.println("here");
+        QuicksortData qsd = (QuicksortData) JmsHelper.retrieveObjectEvent(JmsHelper.QUEUE_SORTED); // Synchronized wait on sorted array (busy wait)
+        System.out.println("here2");
+        QuicksortData.validate(qsd.getArray());
+
+        validator.join();
+
 
 //        int[] nrOfCores = {1, 2, 4, 8};
 //        XYSeriesCollection dataset = new XYSeriesCollection();
