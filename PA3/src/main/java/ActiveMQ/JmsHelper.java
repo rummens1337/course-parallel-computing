@@ -11,7 +11,7 @@ public class JmsHelper {
     public static final String QUEUE_UNSORTED = "unsorted";
     public static final ConnectionFactory CONNECTION_FACTORY = new ActiveMQConnectionFactory(URL);
 
-    public static void sendEvent(String queueName, Object object) throws JMSException {
+    public static void sendObjectEvent(String queueName, Object object) throws JMSException {
         Connection connection = CONNECTION_FACTORY.createConnection();
         try {
             connection.start();
@@ -34,7 +34,7 @@ public class JmsHelper {
         }
     }
 
-    public static Object retrieveEvent(String queueName) throws JMSException {
+    public static Object retrieveObjectEvent(String queueName) throws JMSException {
         Connection connection = CONNECTION_FACTORY.createConnection();
         Object object = null;
         try {
@@ -46,7 +46,7 @@ public class JmsHelper {
             object = message.getObject();
             connection.close();
         } catch (JMSException exception) {
-            System.err.println("Couldn't send JMS message." + exception);
+            System.err.println("Couldn't retrieve JMS message." + exception);
         }finally{
             if (connection != null) {
                 try {
@@ -57,5 +57,18 @@ public class JmsHelper {
             }
         }
         return object;
+    }
+
+    public static void setMessageListener(String queueName, MessageListener object) throws JMSException {
+        Connection connection = CONNECTION_FACTORY.createConnection();
+        try {
+            connection.start();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Destination destination = session.createQueue(queueName);
+            MessageConsumer consumer = session.createConsumer(destination);
+            consumer.setMessageListener(object);
+        } catch (JMSException exception) {
+            System.err.println("Couldn't retrieve JMS message." + exception);
+        }
     }
 }

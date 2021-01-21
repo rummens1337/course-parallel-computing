@@ -30,11 +30,9 @@ public class PA3 {
     public static void main(String[] args) throws InterruptedException, JMSException {
         int[] arrau2 = GenerateData.randomSeededArray(50000, 1337);
         QuicksortData qd = new QuicksortData(arrau2, 0, arrau2.length);
-        JmsHelper.sendEvent(JmsHelper.QUEUE_SORTED, qd);
-        QuicksortData quicksortData = (QuicksortData) JmsHelper.retrieveEvent(JmsHelper.QUEUE_SORTED);
-        System.out.println(quicksortData.getHigh());
-        JmsHelper.retrieveEvent(JmsHelper.QUEUE_UNSORTED);
-
+        JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED, qd);
+        QuicksortData quicksortData = (QuicksortData) JmsHelper.retrieveObjectEvent(JmsHelper.QUEUE_SORTED); // Synchronized wait on sorted array (busy wait)
+        validate(quicksortData.getArray());
 
 //        int[] nrOfCores = {1, 2, 4, 8};
 //        XYSeriesCollection dataset = new XYSeriesCollection();
