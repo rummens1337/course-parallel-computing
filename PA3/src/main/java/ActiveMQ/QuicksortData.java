@@ -67,15 +67,13 @@ public class QuicksortData implements Serializable {
      * @param numbers array of int values
      */
     public static boolean validateWithoutError(int[] numbers) {
-        boolean validate = true;
         for (int i = 0; i < numbers.length - 1; i++) {
             if (numbers[i] > numbers[i + 1]) {
                 System.out.println("Failure on iteration " + i + " of the target array. Value was: " + numbers[i + 1]);
-                validate = false;
-                break;
+                return false;
             }
         }
 
-        return validate;
+        return true;
     }
 }

@@ -15,6 +15,8 @@ import javax.jms.JMSException;
 import java.io.File;
 import java.util.Arrays;
 
+import static java.lang.System.exit;
+
 /**
  * ASSIGNMENT
  * Design and implement a threads and locks solution for your case study algorithm.
@@ -32,6 +34,8 @@ public class PA3 {
     public static void main(String[] args) throws InterruptedException, JMSException {
         int[] array = GenerateData.randomSeededArray(20000000, 1337);
         QuicksortData qd = new QuicksortData(array, 0, array.length - 1);
+        long start = System.nanoTime();
+
         JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED, qd);
 
         // Create validator
@@ -42,11 +46,18 @@ public class PA3 {
         // Retrieve
         System.out.println("here");
         QuicksortData qsd = (QuicksortData) JmsHelper.retrieveObjectEvent(JmsHelper.QUEUE_SORTED); // Synchronized wait on sorted array (busy wait)
+        validator.join();
+
+
+        long end = System.nanoTime();
+        long durationMs = (end - start) / 1000000;
+        System.out.println("Duration: " + durationMs);
+
         System.out.println("\n\nValidated final sorted array in PA3. SUCCESS");
+
         QuicksortData.validate(qsd.getArray());
 
         // Make validator wait until main is done (keeps validator onMessage alive).
-        validator.join();
 
 
 //        int[] nrOfCores = {1, 2, 4, 8};
@@ -138,7 +149,7 @@ public class PA3 {
         if(error) {
             System.err.println(Thread.currentThread().getStackTrace()[1]);
             System.err.println("Array was not correctly sorted!");
-            System.exit(-1);
+            exit(-1);
         }
     }
 }

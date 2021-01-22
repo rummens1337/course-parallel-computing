@@ -1,6 +1,7 @@
 package ActiveMQ;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.broker.jmx.DestinationViewMBean;
 
 import javax.jms.*;
 import java.io.Serializable;
@@ -21,7 +22,6 @@ public class JmsHelper {
             MessageProducer producer = session.createProducer(destination);
             ObjectMessage myObjMsg = session.createObjectMessage((Serializable) object);
             producer.send(myObjMsg);
-//            connection.close();
         } catch (JMSException exception) {
             System.err.println("Couldn't send JMS message." + exception);
         }
@@ -37,7 +37,6 @@ public class JmsHelper {
             MessageConsumer consumer = session.createConsumer(destination);
             ObjectMessage message = (ObjectMessage) consumer.receive();
             object = message.getObject();
-//            connection.close();
         } catch (JMSException exception) {
             System.err.println("Couldn't retrieve JMS message." + exception);
         }
@@ -56,4 +55,20 @@ public class JmsHelper {
             System.err.println("Couldn't retrieve JMS message." + exception);
         }
     }
+
+//    public static void clearQueues() throws JMSException {
+//        Connection connection = CONNECTION_FACTORY.createConnection();
+//        try {
+//
+//            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+//
+//            Destination destination = session.createQueue(JmsHelper.QUEUE_UNSORTED);
+//            DestinationViewMBean unsorted = session.createQueue(JmsHelper.QUEUE_UNSORTED);
+//
+//            MessageConsumer consumer = session.createConsumer(destination);
+//            consumer.setMessageListener(object);
+//        } catch (JMSException exception) {
+//            System.err.println("Couldn't retrieve JMS message." + exception);
+//        }
+//    }
 }

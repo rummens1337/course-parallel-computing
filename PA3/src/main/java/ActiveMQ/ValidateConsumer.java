@@ -11,6 +11,7 @@ import java.util.Arrays;
 import static java.lang.System.exit;
 
 public class ValidateConsumer implements MessageListener, Runnable{
+    private boolean[] checkSortedArray;
     private int counter;
     private int [] sortedArray;
 
@@ -18,6 +19,8 @@ public class ValidateConsumer implements MessageListener, Runnable{
         try {
             this.counter = 0;
             this.sortedArray = new int [arrayLength];
+            this.checkSortedArray = new boolean[arrayLength];
+            java.util.Arrays.fill(checkSortedArray, false);
             JmsHelper.setMessageListener(JmsHelper.QUEUE_PARTIALLY_SORTED, this);
         } catch (JMSException e) {
             e.printStackTrace();
@@ -34,12 +37,28 @@ public class ValidateConsumer implements MessageListener, Runnable{
 
                 for (int i = qsd.getLow(); i < qsd.getHigh() + 1; i++) {
                     this.sortedArray[i] = qsd.getArray()[i];
+                    this.checkSortedArray[i] = true;
                 }
 
-                if (QuicksortData.validateWithoutError(this.sortedArray)) {
-                    QuicksortData sortedArray = new QuicksortData(this.sortedArray, 0, 0);
-                    JmsHelper.sendObjectEvent(JmsHelper.QUEUE_SORTED, sortedArray);
-                    exit(0); // Exit result when array is validated.
+                // todo: Only executes amount of queue messages till here..
+
+                // Check if there is stall a value unfilled.
+                for(boolean elem : checkSortedArray) {
+                    if (!elem) {
+                        break;
+                    }
+                    else {
+                        System.out.println("HEREEEEE");
+                        if (QuicksortData.validateWithoutError(this.sortedArray)) {
+                            System.out.println("YEEEET");
+                            QuicksortData sortedArray = new QuicksortData(this.sortedArray, 0, 0);
+                            JmsHelper.sendObjectEvent(JmsHelper.QUEUE_SORTED, sortedArray);
+                            exit(0); // Exit result when array is validated.
+                        }else
+                        {
+                            break;
+                        }
+                    }
                 }
 
                 long end = System.nanoTime();
