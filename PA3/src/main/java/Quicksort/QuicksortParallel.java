@@ -85,6 +85,7 @@ public class QuicksortParallel extends Thread {
 
         // If max enough items for another client, push high to unsorted queue
         if (high - low > 1000000) {
+            System.out.println("sendObjectEvent");
             QuicksortData quicksortData = new QuicksortData(numbers, i, high);
             JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED ,quicksortData);
             if (low < j) {

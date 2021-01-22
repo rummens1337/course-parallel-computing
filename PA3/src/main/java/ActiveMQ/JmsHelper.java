@@ -6,7 +6,7 @@ import javax.jms.*;
 import java.io.Serializable;
 
 public class JmsHelper {
-    public static final String URL = "tcp://localhost:61616";
+    public static final String URL = "tcp://localhost:61616?jms.prefetchPolicy.queuePrefetch=15";
     public static final String QUEUE_SORTED = "sorted";
     public static final String QUEUE_PARTIALLY_SORTED = "partially-sorted";
     public static final String QUEUE_UNSORTED = "unsorted";
@@ -21,17 +21,9 @@ public class JmsHelper {
             MessageProducer producer = session.createProducer(destination);
             ObjectMessage myObjMsg = session.createObjectMessage((Serializable) object);
             producer.send(myObjMsg);
-            connection.close();
+//            connection.close();
         } catch (JMSException exception) {
             System.err.println("Couldn't send JMS message." + exception);
-        }finally{
-            if (connection != null) {
-                try {
-                    connection.close();
-                }catch(JMSException exception) {
-                    System.err.println("Couldn't close JMSConnection: " + exception);
-                }
-            }
         }
     }
 
@@ -45,17 +37,9 @@ public class JmsHelper {
             MessageConsumer consumer = session.createConsumer(destination);
             ObjectMessage message = (ObjectMessage) consumer.receive();
             object = message.getObject();
-            connection.close();
+//            connection.close();
         } catch (JMSException exception) {
             System.err.println("Couldn't retrieve JMS message." + exception);
-        }finally{
-            if (connection != null) {
-                try {
-                    connection.close();
-                }catch(JMSException exception) {
-                    System.err.println("Couldn't close JMSConnection: " + exception);
-                }
-            }
         }
         return object;
     }

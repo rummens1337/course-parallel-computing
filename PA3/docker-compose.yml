@@ -1,0 +1,9 @@
+version: '3'
+services:
+  queue:
+    image: "rmohr/activemq:5.15.6"
+    ports:
+      - "8161:8161" # Change second parameter if conflicts with ports occur
+      - "61616:61616" # Change second parameter if conflicts with ports occur
+    environment:
+      ACTIVEMQ_OPTS: "-Xms2g -Xmx3g" # Set memory between 2 and 3GB, instead of 64MB :)

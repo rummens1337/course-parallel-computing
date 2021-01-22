@@ -30,7 +30,7 @@ public class PA3 {
     static volatile int[][] dataArrayParallel;
 
     public static void main(String[] args) throws InterruptedException, JMSException {
-        int[] array = GenerateData.randomSeededArray(5000000, 1337);
+        int[] array = GenerateData.randomSeededArray(20000000, 1337);
         QuicksortData qd = new QuicksortData(array, 0, array.length - 1);
         JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED, qd);
 
@@ -42,7 +42,7 @@ public class PA3 {
         // Retrieve
         System.out.println("here");
         QuicksortData qsd = (QuicksortData) JmsHelper.retrieveObjectEvent(JmsHelper.QUEUE_SORTED); // Synchronized wait on sorted array (busy wait)
-        System.out.println("\n\nValidated final sorted array in PA2. SUCCESS");
+        System.out.println("\n\nValidated final sorted array in PA3. SUCCESS");
         QuicksortData.validate(qsd.getArray());
 
         // Make validator wait until main is done (keeps validator onMessage alive).
