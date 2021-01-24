@@ -31,9 +31,6 @@ public class ValidateConsumer implements MessageListener, Runnable {
 
     @Override
     public void onMessage(Message m) {
-        // Start counting directly when message is received, till when it is handled.
-        long start = System.nanoTime();
-
         try {
             if (m instanceof ObjectMessage) {
                 ObjectMessage message = (ObjectMessage) m;
@@ -62,10 +59,6 @@ public class ValidateConsumer implements MessageListener, Runnable {
         } catch (JMSException e) {
             e.printStackTrace();
         }
-
-        long end = System.nanoTime();
-        long durationMs = (end - start) / 1000000;
-        System.out.println("Duration MS: " + durationMs);
     }
 
 

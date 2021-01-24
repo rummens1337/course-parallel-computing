@@ -16,9 +16,6 @@ public class SortConsumer implements MessageListener{
 
     @Override
     public void onMessage(Message m) {
-        // Start counting directly when message is received, till when it is handled.
-        long start = System.nanoTime();
-
         try {
             if (m instanceof ObjectMessage) {
                 // Retrieve message and fill object.
@@ -40,10 +37,6 @@ public class SortConsumer implements MessageListener{
         }catch(JMSException e){
             e.printStackTrace();
         }
-
-        long end = System.nanoTime();
-        long durationMs = (end - start) / 1000000;
-        System.out.println("Duration Sorting : " + durationMs);
     }
 
     public static void main(String[] args) throws InterruptedException {

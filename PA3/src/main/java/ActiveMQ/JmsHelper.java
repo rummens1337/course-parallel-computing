@@ -6,7 +6,7 @@ import javax.jms.*;
 import java.io.Serializable;
 
 public class JmsHelper {
-    public static final String URL = "tcp://localhost:61616?jms.prefetchPolicy.queuePrefetch=15";
+    public static final String URL = "tcp://localhost:61616";
     public static final String QUEUE_SORTED = "sorted";
     public static final String QUEUE_PARTIALLY_SORTED = "partially-sorted";
     public static final String QUEUE_UNSORTED = "unsorted";

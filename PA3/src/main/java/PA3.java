@@ -23,6 +23,7 @@ public class PA3 {
     private static final int ARRAY_SIZE = 10000000;
     private static final int ARRAY_SEED = 1337;
     private static final int TIME_DIVISION_MS = 1000000;
+    private static final int AMOUNT_OF_VALIDATORS = 2;
 
     public static void main(String[] args) throws JMSException {
         // Execute regular quicksort to get reference array
@@ -47,7 +48,7 @@ public class PA3 {
         // Are started from within main program, but could be decoupled with some extra orchestration of data.
         // For sake of this project, validators are bound to the main program as this reduces overhead of syncing -
         // the validation.
-        startValidators(new ValidateConsumer(array.length), 1);
+        startValidators(new ValidateConsumer(array.length), AMOUNT_OF_VALIDATORS);
 
         // Call retrieveObjectEvent, which is a busy-wait function that waits for input in the sorted queue.
         // This essentially waits until the entire array is sorted.
