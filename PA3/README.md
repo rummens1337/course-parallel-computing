@@ -13,6 +13,15 @@ Java HotSpot(TM) 64-Bit Server VM (build 15.0.1+9-18, mixed mode, sharing)
 Have gradle version ~ Gradle 4.4.1 installed locally.
 
 ### ActiveMQ
+Either use the Docker Compose command, or run the Docker container manually.
+
+#### Automatically
+You can make use of the docker-compose (with increased memory). Simply execute command below.
+```bash
+docker-compose -f docker-compose.yml up --build
+```
+
+#### Manually
 This application makes use of Apache's ActiveMQ, which is available in Docker.
 To pull the docker container and run it, execute the following commands.
 Found on: https://hub.docker.com/r/rmohr/activemq
