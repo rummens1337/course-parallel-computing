@@ -1,25 +1,27 @@
 package ActiveMQ;
 
-import Quicksort.QuicksortParallel;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-import java.util.Arrays;
 
-import static java.lang.System.exit;
+public class ValidateConsumer implements MessageListener, Runnable {
+    private static boolean[] checkSortedArray;
+    private static int[] sortedArray;
 
-public class ValidateConsumer implements MessageListener, Runnable{
-    private boolean[] checkSortedArray;
-    private int counter;
-    private int [] sortedArray;
-
-    public ValidateConsumer(int arrayLength){
+    public ValidateConsumer(int arrayLength) {
         try {
-            this.counter = 0;
-            this.sortedArray = new int [arrayLength];
-            this.checkSortedArray = new boolean[arrayLength];
+            // Static arrays are shared among validators, so check if already exists before creating.
+            // Validators could also be decoupled from main program, and a topic could be used to communicate amongst
+            // validators, whether a certain range has already been validated. However, for the scope of this project
+            // that was left out.
+            if (sortedArray == null) {
+                sortedArray = new int[arrayLength];
+                checkSortedArray = new boolean[arrayLength];
+            }
+
+            // Fill boolean array with false, this can later be checked in a way faster manner than checking the whole
+            // array whether i > i+1
             java.util.Arrays.fill(checkSortedArray, false);
             JmsHelper.setMessageListener(JmsHelper.QUEUE_PARTIALLY_SORTED, this);
         } catch (JMSException e) {
@@ -29,50 +31,42 @@ public class ValidateConsumer implements MessageListener, Runnable{
 
     @Override
     public void onMessage(Message m) {
+        // Start counting directly when message is received, till when it is handled.
+        long start = System.nanoTime();
+
         try {
             if (m instanceof ObjectMessage) {
                 ObjectMessage message = (ObjectMessage) m;
                 QuicksortData qsd = (QuicksortData) message.getObject();
-                long start = System.nanoTime();
 
                 for (int i = qsd.getLow(); i < qsd.getHigh() + 1; i++) {
-                    this.sortedArray[i] = qsd.getArray()[i];
-                    this.checkSortedArray[i] = true;
+                    sortedArray[i] = qsd.getArray()[i];
+                    checkSortedArray[i] = true;
                 }
 
-                // todo: Only executes amount of queue messages till here..
-
-                // Check if there is stall a value unfilled.
-                for(boolean elem : checkSortedArray) {
-                    if (!elem) {
-                        break;
-                    }
-                    else {
-                        System.out.println("HEREEEEE");
-                        if (QuicksortData.validateWithoutError(this.sortedArray)) {
-                            System.out.println("YEEEET");
-                            QuicksortData sortedArray = new QuicksortData(this.sortedArray, 0, 0);
-                            JmsHelper.sendObjectEvent(JmsHelper.QUEUE_SORTED, sortedArray);
-                            exit(0); // Exit result when array is validated.
-                        }else
-                        {
-                            break;
-                        }
-                    }
+                // Return once an element has not been checked yet (value will be false).
+                for (boolean elem : checkSortedArray) {
+                    if (!elem)
+                        return;
                 }
 
-                long end = System.nanoTime();
-                long durationMs = (end - start) / 1000000;
-
-                System.out.println("Duration MS: " + durationMs + " Low: " + qsd.getLow() + " High: " + qsd.getHigh() + " Count: " + this.counter);
+                // Only validate entire array once every element has been sorted.
+                if (QuicksortData.validateWithoutError(sortedArray)) {
+                    QuicksortData sortedArray = new QuicksortData(ValidateConsumer.sortedArray, 0, 0);
+                    JmsHelper.sendObjectEvent(JmsHelper.QUEUE_SORTED, sortedArray);
+                    return; // Exit when array is validated.
+                }
             } else {
-                System.out.println("Unable to handle onMessage");
+                System.out.println("Unable to handle onMessage ValidateConsumer. Are you sending the correct object?");
             }
-        }catch (JMSException e){
+        } catch (JMSException e) {
             e.printStackTrace();
         }
-    }
 
+        long end = System.nanoTime();
+        long durationMs = (end - start) / 1000000;
+        System.out.println("Duration MS: " + durationMs);
+    }
 
 
     @Override

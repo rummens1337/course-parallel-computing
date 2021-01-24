@@ -76,4 +76,29 @@ public class QuicksortData implements Serializable {
 
         return true;
     }
+
+    /**
+     * Validates whether two arrays are sorted in the same manner.
+     * Exits program if not valid.
+     * @param sourceArray array to be compared
+     * @param targetArray array to be compared against
+     */
+    public static void validateEquallySorted(int[] sourceArray, int[] targetArray) {
+        boolean error = false;
+
+        if(sourceArray.length == targetArray.length){
+            for (int i = 0; i < sourceArray.length - 1; i++) {
+                if (!(sourceArray[i] == targetArray[i])) {
+                    error = true;
+                    break;
+                }
+            }
+        }
+
+        if(error) {
+            System.err.println(Thread.currentThread().getStackTrace()[1]);
+            System.err.println("sourceArray was not correctly sorted in comparison to the targetArray!");
+            System.exit(-1);
+        }
+    }
 }

@@ -9,43 +9,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Quicksort method te calculate speed of quicksort.
- *
+ * <p>
  * DISCLAIMER
  * This is NOT fully our own work, and is partially copied from
  * https://www.vogella.com/tutorials/JavaAlgorithmsQuicksortParallel/article.html
  * Writing our own Quicksort method is not required per assignment, and is thus copied for sake of ease.
  */
-public class QuicksortParallel extends Thread {
-    private int nrOfThreads = Runtime.getRuntime().availableProcessors();
-    private AtomicInteger nrOfStartedThreads;
-    private Semaphore sem;
-    private volatile int [] numbers;
+public class QuicksortDistributed extends Thread {
+    private static final int SORT_MAX_THRESHOLD = 1000000;
     private QuicksortData quicksortData;
+    private int[] numbers;
 
-//    public void sort(int [] values, int low, int high, int nrOfThreads){
-//        this.nrOfThreads = nrOfThreads;
-//        sort(values, low, high);
-//    }
     public void sort(QuicksortData quicksortData) {
         this.quicksortData = quicksortData;
-        int [] values = quicksortData.getArray();
+        int[] values = quicksortData.getArray();
         int low = quicksortData.getLow();
         int high = quicksortData.getHigh();
 
         // check for empty or null array
-        if (values ==null || values.length==0){
+        if (values == null || values.length == 0) {
             return;
         }
 
         this.numbers = values;
-        int number = values.length;
-
-        sem = new Semaphore(nrOfThreads - 1); // already count current thread
-        nrOfStartedThreads = new AtomicInteger(0);
 
         try {
-            // Count current thread as new thread.
-            nrOfStartedThreads.incrementAndGet();
             quicksort(low, high);
         } catch (InterruptedException | JMSException e) {
             e.printStackTrace();
@@ -56,7 +44,7 @@ public class QuicksortParallel extends Thread {
         int i = low;
         int j = high;
         // Get the pivot element from the middle of the list
-        int pivot = numbers[low + (high-low)/2];
+        int pivot = numbers[low + (high - low) / 2];
 
         // Divide into two lists
         while (i <= j) {
@@ -83,17 +71,16 @@ public class QuicksortParallel extends Thread {
             }
         }
 
-        // If max enough items for another client, push high to unsorted queue
-        if (high - low > 1000000) {
-            System.out.println("sendObjectEvent");
+        // If enough items for another client, push high to unsorted queue and continue sorting lower end.
+        if (high - low > SORT_MAX_THRESHOLD) {
             QuicksortData quicksortData = new QuicksortData(numbers, i, high);
-            JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED ,quicksortData);
+            JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED, quicksortData);
             if (low < j) {
                 this.quicksortData.setLow(low);
                 this.quicksortData.setHigh(j);
                 quicksort(low, j);
             }
-        }else{
+        } else {
             if (low < j)
                 quicksort(low, j);
             if (i < high)
@@ -105,9 +92,5 @@ public class QuicksortParallel extends Thread {
         int temp = numbers[i];
         numbers[i] = numbers[j];
         numbers[j] = temp;
-    }
-
-    public int getNrOfStartedThreads() {
-        return nrOfStartedThreads.intValue();
     }
 }

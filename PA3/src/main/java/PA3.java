@@ -3,17 +3,8 @@ import ActiveMQ.QuicksortData;
 import ActiveMQ.ValidateConsumer;
 import Quicksort.GenerateData;
 import Quicksort.Quicksort;
-import Quicksort.QuicksortParallel;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.jms.JMSException;
-import java.io.File;
-import java.util.Arrays;
 
 import static java.lang.System.exit;
 
@@ -29,127 +20,57 @@ import static java.lang.System.exit;
  * calculated during the design phase.
  */
 public class PA3 {
-    static volatile int[][] dataArrayParallel;
+    private static final int ARRAY_SIZE = 10000000;
+    private static final int ARRAY_SEED = 1337;
+    private static final int TIME_DIVISION_MS = 1000000;
 
-    public static void main(String[] args) throws InterruptedException, JMSException {
-        int[] array = GenerateData.randomSeededArray(20000000, 1337);
+    public static void main(String[] args) throws JMSException {
+        // Execute regular quicksort to get reference array
+        long startRegular = System.nanoTime();
+        int [] regularArray = GenerateData.randomSeededArray(ARRAY_SIZE, ARRAY_SEED);
+        Quicksort quicksort = new Quicksort();
+        quicksort.sort(regularArray);
+        long endRegular = System.nanoTime();
+        long durationMsRegular = (endRegular - startRegular) / TIME_DIVISION_MS;
+
+        // Generate dataset for distributed version
+        int[] array = GenerateData.randomSeededArray(ARRAY_SIZE, ARRAY_SEED);
         QuicksortData qd = new QuicksortData(array, 0, array.length - 1);
+
+        // Start time counter for total
         long start = System.nanoTime();
 
+        // Send generated data object to the unsorted queue.
         JmsHelper.sendObjectEvent(JmsHelper.QUEUE_UNSORTED, qd);
 
-        // Create validator
-        ValidateConsumer vc = new ValidateConsumer(array.length);
-        Thread validator = new Thread(vc);
-        validator.start();
+        // Start amount of validators needed.
+        // Are started from within main program, but could be decoupled with some extra orchestration of data.
+        // For sake of this project, validators are bound to the main program as this reduces overhead of syncing -
+        // the validation.
+        startValidators(new ValidateConsumer(array.length), 1);
 
-        // Retrieve
-        System.out.println("here");
-        QuicksortData qsd = (QuicksortData) JmsHelper.retrieveObjectEvent(JmsHelper.QUEUE_SORTED); // Synchronized wait on sorted array (busy wait)
-        validator.join();
-
-
+        // Call retrieveObjectEvent, which is a busy-wait function that waits for input in the sorted queue.
+        // This essentially waits until the entire array is sorted.
+        QuicksortData qsd = (QuicksortData) JmsHelper.retrieveObjectEvent(JmsHelper.QUEUE_SORTED);
         long end = System.nanoTime();
-        long durationMs = (end - start) / 1000000;
-        System.out.println("Duration: " + durationMs);
+        long durationMsDistributed = (end - start) / TIME_DIVISION_MS;
 
-        System.out.println("\n\nValidated final sorted array in PA3. SUCCESS");
-
+        // Validate (once more) that the array is properly sorted.
         QuicksortData.validate(qsd.getArray());
+        QuicksortData.validateEquallySorted(qsd.getArray(), regularArray);
 
-        // Make validator wait until main is done (keeps validator onMessage alive).
+        System.out.println("Duration Distributed: " + durationMsDistributed);
+        System.out.println("Duration Regular: " + durationMsRegular);
+        System.out.println("SUCCESS. Validated entire array was correctly sorted.");
 
-
-//        int[] nrOfCores = {1, 2, 4, 8};
-//        XYSeriesCollection dataset = new XYSeriesCollection();
-//        final int START_AMOUNT = 500000;
-//        final int ITERATIONS = 3;
-//
-//        // Create and instantiate parallel
-//        QuicksortParallel qsp = new QuicksortParallel();
-//
-//        // Create and instantiate regular
-//        Quicksort qs = new Quicksort();
-//        XYSeries qsData = new XYSeries("Regular Quicksort");
-//        int[][] dataArrayRegular = GenerateData.twoDimensionalDataArray(START_AMOUNT, ITERATIONS);
-//
-//        // Sort and calculate regular
-//        for (int[] array : dataArrayRegular) {
-//            Thread.sleep(3000);
-//            long start = System.nanoTime();
-//            qs.sort(array);
-//            validate(array); // validate sorted array.
-//            long end = System.nanoTime();
-//            long durationMs = (end - start) / 1000000;
-//            System.out.println(durationMs);
-//            qsData.add(array.length, durationMs);
-//        }
-//
-//        dataset.addSeries(qsData);
-//
-//        // Sort and calculate parallel
-//        for(int cores : nrOfCores) {
-//            dataArrayParallel = GenerateData.twoDimensionalDataArray(START_AMOUNT, ITERATIONS);
-//            XYSeries qspData = new XYSeries("Parallel Quicksort: " + cores);
-//
-//            for (int[] array : dataArrayParallel) {
-//                Thread.sleep(3000);
-//                long start = System.nanoTime();
-//                qsp.sort(array, cores);
-//                validate(array); // validate sorted array.
-//                long end = System.nanoTime();
-//                long durationMs = (end - start) / 1000000;
-//                System.out.println(durationMs);
-//                qspData.add(array.length, durationMs);
-//            }
-//            dataset.addSeries(qspData);
-//        }
-//
-//        JFreeChart chart = ChartFactory.createXYLineChart(
-//                "Quicksort vs Parallel Quicksort",
-//                "Data size", "Time in Milliseconds",
-//                dataset,
-//                PlotOrientation.VERTICAL,
-//                true, true, false);
-//
-//        exportChartToPng("chart2.png", chart, 800, 800);
+        // Manually exit the program.
+        exit(0);
     }
 
-    public static void exportChartToPng(String filename, JFreeChart chart, int width, int height) {
-        try {
-            String directoryName = "images/";
-
-            File directory = new File(directoryName);
-            if (!directory.exists()) {
-                if (!directory.mkdir()) {
-                    throw new Exception("Failed to create the 'images' directory");
-                }
-            }
-
-            ChartUtilities.saveChartAsPNG(new File(directoryName + filename), chart, width, height);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Validates whether an array is correctly sorted.
-     * Exits program if not valid.
-     * @param numbers array of int values
-     */
-    private static void validate(int[] numbers) {
-        boolean error = false;
-        for (int i = 0; i < numbers.length - 1; i++) {
-            if (numbers[i] > numbers[i + 1]) {
-                error = true;
-                break;
-            }
-        }
-
-        if(error) {
-            System.err.println(Thread.currentThread().getStackTrace()[1]);
-            System.err.println("Array was not correctly sorted!");
-            exit(-1);
+    public static void startValidators(ActiveMQ.ValidateConsumer vc, int amount){
+        for (int i = 0; i < amount; i++) {
+            Thread validator = new Thread(vc);
+            validator.start();
         }
     }
 }
